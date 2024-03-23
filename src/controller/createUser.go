@@ -2,24 +2,34 @@ package controller
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lucasbarroso23/baseline-GoAPI/src/configuration/rest_err"
+	"github.com/lucasbarroso23/baseline-GoAPI/src/configuration/validation"
 	"github.com/lucasbarroso23/baseline-GoAPI/src/controller/model/request"
+	"github.com/lucasbarroso23/baseline-GoAPI/src/controller/model/response"
 )
 
 func CreateUser(c *gin.Context) {
 
+	log.Println("Init CreateUser controller")
 	var userRequest request.UserRequest
 
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
-		rest_err := rest_err.NewBadRequestError(
-			fmt.Sprintf("there are some incorrect fields, error=%s\n", err.Error()),
-		)
+		log.Printf("Error trying to marshal object, error=%s", err.Error())
+		errRest := validation.ValidateUserError(err)
 
-		c.JSON(rest_err.Code, rest_err)
+		c.JSON(errRest.Code, errRest)
 		return
 	}
 
 	fmt.Println(userRequest)
+	response := response.UserResponse{
+		ID:    "test",
+		Email: userRequest.Email,
+		Name:  userRequest.Name,
+		Age:   userRequest.Age,
+	}
+	c.JSON(http.StatusOK, response)
 }
