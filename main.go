@@ -5,10 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/lucasbarroso23/baseline-GoAPI/src/configuration/logger"
 	"github.com/lucasbarroso23/baseline-GoAPI/src/controller/routes"
 )
 
 func main() {
+	logger.Info("About to start application")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("error loading env file")

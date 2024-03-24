@@ -15,7 +15,7 @@ var (
 	LOG_LEVEL  = "LOG_LEVEL"
 )
 
-func Init() {
+func init() {
 	logConfig := zap.Config{
 		OutputPaths: []string{getOutputLogs()},
 		Level:       zap.NewAtomicLevelAt(getLevelLogs()),
@@ -25,12 +25,28 @@ func Init() {
 			TimeKey:      "time",
 			MessageKey:   "message",
 			EncodeTime:   zapcore.ISO8601TimeEncoder,
-			EncodeLevel:  zapcore.LowercaseColorLevelEncoder,
+			EncodeLevel:  zapcore.LowercaseLevelEncoder,
 			EncodeCaller: zapcore.ShortCallerEncoder,
 		},
 	}
 
 	log, _ = logConfig.Build()
+}
+
+func Info(message string, tags ...zap.Field) {
+	log.Info(message, tags...)
+	log.Sync()
+}
+
+func Error(message string, err error, tags ...zap.Field) {
+	tags = append(tags, zap.NamedError("error", err))
+	log.Info(message, tags...)
+	log.Sync()
+}
+
+func Debug(message string, tags ...zap.Field) {
+	log.Debug(message, tags...)
+	log.Sync()
 }
 
 func getOutputLogs() string {
@@ -49,7 +65,7 @@ func getLevelLogs() zapcore.Level {
 	case "error":
 		return zapcore.ErrorLevel
 	case "debug":
-		return zap.DebugLevel
+		return zapcore.DebugLevel
 	default:
 		return zapcore.InfoLevel
 	}
